@@ -2,11 +2,26 @@
 
 Line = Struct.new(:time, :event, :content)
 
+LOG_PATH = './parser/logs/games.log'
+
 LOG_FORMAT = /
-(?<time>\d{1,2}:\d{2})        # Time
-\s(?<event>[a-zA-Z]+(?=:))\W  # Event
-\s(?<content>.*)              # Content
+  (?<time>\d{1,2}:\d{2})        # Time
+  \s(?<event>[a-zA-Z]+(?=:))\W  # Event
+  \s(?<content>.*)              # Content
 /x.freeze
+
+KILLER_FORMAT = /(?<=:\s)(?<killer>.+)(?=\skilled)/.freeze
+KILLED_FORMAT = /(?<=killed\s)(.+)(?=\sby)/.freeze
+PLAYER_FORMAT = /(?<=\d\sn\\)(.+)(?=\\t\\0)/.freeze
+
+WORLD_NICK = '<world>'
+GAME_PREFIX = 'game_'
+
+EVENT = {
+  new_game: 'InitGame',
+  user_info: 'ClientUserinfoChanged',
+  kill: 'Kill'
+}.freeze
 
 current_game = 0
 games = {}
@@ -15,31 +30,31 @@ def parse_line(line)
   line.match(LOG_FORMAT) { |m| Line.new(*m.captures) }
 end
 
-File.foreach('./parser/logs/games.log') do |line|
+File.foreach(LOG_PATH) do |line|
   register = parse_line(line)
 
   if register
-    if register.event.eql?('InitGame')
+    if register.event == EVENT[:new_game]
       current_game += 1
-      games["game_#{current_game}"] = {
+      games["#{GAME_PREFIX}#{current_game}"] = {
         total_kills: 0,
         players: [],
         kills: Hash.new(0)
       }
     end
 
-    if register.event.eql?('ClientUserinfoChanged')
-      games["game_#{current_game}"][:players] |= [register.content[/(?<=\d\sn\\)(.+)(?=\\t\\0)/]]
+    if register.event == EVENT[:user_info]
+      games["#{GAME_PREFIX}#{current_game}"][:players] |= [register.content[PLAYER_FORMAT]]
     end
 
-    if register.event.eql?('Kill')
-      killer = register.content[/(?<=:\s)(?<killer>.+)(?=\skilled)/]
-      killed = register.content[/(?<=killed\s)(.+)(?=\sby)/]
+    if register.event == EVENT[:kill]
+      killer = register.content[KILLER_FORMAT]
+      killed = register.content[KILLED_FORMAT]
 
-      games["game_#{current_game}"][:kills][killer] += 1 unless killer.eql?('<world>')
-      games["game_#{current_game}"][:kills][killed] -= 1 if killer.eql?('world')
+      games["#{GAME_PREFIX}#{current_game}"][:kills][killer] += 1 unless killer == WORLD_NICK
+      games["#{GAME_PREFIX}#{current_game}"][:kills][killed] -= 1 if killer == WORLD_NICK
 
-      games["game_#{current_game}"][:total_kills] += 1
+      games["#{GAME_PREFIX}#{current_game}"][:total_kills] += 1
     end
   end
 end
