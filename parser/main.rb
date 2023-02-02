@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'set'
+
 Line = Struct.new(:time, :event, :content)
 
 LOG_PATH = './parser/logs/'
@@ -24,7 +26,7 @@ EVENT = {
   kill: 'Kill'
 }.freeze
 
-current_game = ''
+game_id = ''
 game_count = 0
 games = {}
 
@@ -37,24 +39,25 @@ File.foreach(LOG_PATH + log_file) do |line|
 
   if register&.event == EVENT[:new_game]
     game_count += 1
-    current_game = "#{GAME_PREFIX}#{game_count}"
-    games[current_game] = {
+    game_id = "#{GAME_PREFIX}#{game_count}"
+
+    games[game_id] = {
       total_kills: 0,
-      players: [],
+      players: Set.new,
       kills: Hash.new(0)
     }
   end
 
-  games[current_game][:players] |= [register.content[PLAYER_FORMAT]] if register&.event == EVENT[:user_info]
+  player = register.content[PLAYER_FORMAT] if register&.event == EVENT[:user_info]
 
   if register&.event == EVENT[:kill]
     killer = register.content[KILLER_FORMAT]
     killed = register.content[KILLED_FORMAT]
 
-    games[current_game][:kills][killer] += 1 unless killer == WORLD_ID
-    games[current_game][:kills][killed] -= 1 if killer == WORLD_ID
+    games[game_id][:kills][killer] += 1 unless killer == WORLD_ID
+    games[game_id][:kills][killed] -= 1 if killer == WORLD_ID
 
-    games[current_game][:total_kills] += 1
+    games[game_id][:total_kills] += 1
   end
 end
 
