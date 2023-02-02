@@ -2,42 +2,51 @@
 
 require 'set'
 
+# Módulo com patterns/constantes referentes ao log
+module Log
+  LOG_PATTERNS = {
+    log: /
+      (?<time>\d{1,2}:\d{2})        # Time
+      \s(?<event>[a-zA-Z]+(?=:))\W  # Event
+      \s(?<content>.*)              # Content
+    /x,
+    killer: /(?<=:\s)(?<killer>.+)(?=\skilled)/,
+    killed: /(?<=killed\s)(.+)(?=\sby)/,
+    player: /(?<=\d\sn\\)(.+)(?=\\t\\\d)/
+  }.freeze
+
+  EVENT = {
+    new_game: 'InitGame',
+    user_info: 'ClientUserinfoChanged',
+    kill: 'Kill'
+  }.freeze
+
+  LOG_PATH = './parser/logs/'
+
+  def self.get_file_path(file_name)
+    LOG_PATH + file_name
+  end
+end
+
 Line = Struct.new(:time, :event, :content)
 
-LOG_PATH = './parser/logs/'
 log_file = 'games.log'
-
-LOG_FORMAT = /
-  (?<time>\d{1,2}:\d{2})        # Time
-  \s(?<event>[a-zA-Z]+(?=:))\W  # Event
-  \s(?<content>.*)              # Content
-/x.freeze
-
-KILLER_FORMAT = /(?<=:\s)(?<killer>.+)(?=\skilled)/.freeze
-KILLED_FORMAT = /(?<=killed\s)(.+)(?=\sby)/.freeze
-PLAYER_FORMAT = /(?<=\d\sn\\)(.+)(?=\\t\\\d)/.freeze
 
 WORLD_ID = '<world>'
 GAME_PREFIX = 'game_'
-
-EVENT = {
-  new_game: 'InitGame',
-  user_info: 'ClientUserinfoChanged',
-  kill: 'Kill'
-}.freeze
 
 game_id = ''
 game_count = 0
 games = {}
 
 def parse_line(line)
-  line.match(LOG_FORMAT) { |m| Line.new(*m.captures) }
+  line.match(Log::LOG_PATTERNS[:log]) { |m| Line.new(*m.captures) }
 end
 
-File.foreach(LOG_PATH + log_file) do |line|
+File.foreach(Log.get_file_path(log_file)) do |line|
   register = parse_line(line)
 
-  if register&.event == EVENT[:new_game]
+  if register&.event == Log::EVENT[:new_game]
     game_count += 1
     game_id = "#{GAME_PREFIX}#{game_count}"
 
@@ -48,15 +57,15 @@ File.foreach(LOG_PATH + log_file) do |line|
     }
   end
 
-  if register&.event == EVENT[:user_info]
-    player = register.content[PLAYER_FORMAT]
+  if register&.event == Log::EVENT[:user_info]
+    player = register.content[Log::LOG_PATTERNS[:player]]
     games[game_id][:players].add(player)
     games[game_id][:kills][player] = 0 unless games[game_id][:kills].key?(player)
   end
 
-  if register&.event == EVENT[:kill]
-    killer = register.content[KILLER_FORMAT]
-    killed = register.content[KILLED_FORMAT]
+  if register&.event == Log::EVENT[:kill]
+    killer = register.content[Log::LOG_PATTERNS[:killer]]
+    killed = register.content[Log::LOG_PATTERNS[:killed]]
 
     games[game_id][:kills][killer] += 1 unless killer == WORLD_ID
     games[game_id][:kills][killed] -= 1 if killer == WORLD_ID
