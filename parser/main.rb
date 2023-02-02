@@ -15,7 +15,7 @@ LOG_FORMAT = /
 
 KILLER_FORMAT = /(?<=:\s)(?<killer>.+)(?=\skilled)/.freeze
 KILLED_FORMAT = /(?<=killed\s)(.+)(?=\sby)/.freeze
-PLAYER_FORMAT = /(?<=\d\sn\\)(.+)(?=\\t\\0)/.freeze
+PLAYER_FORMAT = /(?<=\d\sn\\)(.+)(?=\\t\\\d)/.freeze
 
 WORLD_ID = '<world>'
 GAME_PREFIX = 'game_'
