@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+Line = Struct.new(:time, :event, :content)
+
 # Módulo com patterns/constantes referentes ao log
 module Log
   LOG_PATTERNS = {
