@@ -48,7 +48,11 @@ File.foreach(LOG_PATH + log_file) do |line|
     }
   end
 
-  player = register.content[PLAYER_FORMAT] if register&.event == EVENT[:user_info]
+  if register&.event == EVENT[:user_info]
+    player = register.content[PLAYER_FORMAT]
+    games[game_id][:players].add(player)
+    games[game_id][:kills][player] = 0 unless games[game_id][:kills].key?(player)
+  end
 
   if register&.event == EVENT[:kill]
     killer = register.content[KILLER_FORMAT]
