@@ -9,36 +9,53 @@ require_relative './modules/events/kill'
 class LogParser
   include Log
 
+  attr_reader :games, :current_game_index, :current_game
+
+  def initialize
+    @games = {}
+    @current_game_index = 0
+    @current_game = {}
+  end
+
   def parse_line(line)
     line.match(LOG_PATTERNS[:log]) { |m| Line.new(*m.captures) }
   end
 
   def process(filename)
-    games = {}
-    game_id = ''
-    game_count = 0
-
-    events = {
-      EVENT[:new_game] => lambda { |_line|
-        game_count += 1
-        game_id = "#{GAME_PREFIX}#{game_count}"
-        games[game_id] = NewGameEvent.process
-      },
-      EVENT[:user_info] => lambda { |line|
-        games[game_id] = UserInfoEvent.process(line, games[game_id])
-      },
-      EVENT[:kill] => lambda { |line|
-        games[game_id] = KillEvent.process(line, games[game_id])
-      }
-    }
-
     File.foreach(get_file_path(filename)) do |line|
       register = parse_line(line)
-
       event_name = register&.event
-      events[event_name]&.call(register)
+      events_actions[event_name]&.call(register)
     end
 
-    games
+    @games
+  end
+
+  private
+
+  def events_actions
+    {
+      EVENT[:new_game] => lambda { |_line|
+        increment_game_count
+        @current_game = update_game(NewGameEvent.process)
+      },
+      EVENT[:user_info] => lambda { |line|
+        update_game(UserInfoEvent.process(line, @current_game))
+      },
+      EVENT[:kill] => lambda { |line|
+        update_game(KillEvent.process(line, @current_game))
+      }
+    }
+  end
+
+  def increment_game_count
+    @current_game_index += 1
+  end
+
+  def update_game(game)
+    id = "#{GAME_PREFIX}#{@current_game_index}"
+
+    @games[id] = game
+    @games[id]
   end
 end
