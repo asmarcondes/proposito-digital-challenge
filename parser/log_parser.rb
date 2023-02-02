@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-require_relative 'modules/log'
-
-Line = Struct.new(:time, :event, :content)
+require_relative './modules/log'
+require_relative './modules/events/new_game'
+require_relative './modules/events/user_info'
+require_relative './modules/events/kill'
 
 # Classe responsável por extrair os dados do arquivo de log
 class LogParser
@@ -21,26 +22,13 @@ class LogParser
       EVENT[:new_game] => lambda { |_line|
         game_count += 1
         game_id = "#{GAME_PREFIX}#{game_count}"
-
-        games[game_id] = {
-          total_kills: 0,
-          players: Set.new,
-          kills: Hash.new(0)
-        }
+        games[game_id] = NewGameEvent.process
       },
       EVENT[:user_info] => lambda { |line|
-        player = line.content[LOG_PATTERNS[:player]]
-        games[game_id][:players].add(player)
-        games[game_id][:kills][player] = 0 unless games[game_id][:kills].key?(player)
+        games[game_id] = UserInfoEvent.process(line, games[game_id])
       },
       EVENT[:kill] => lambda { |line|
-        killer = line.content[LOG_PATTERNS[:killer]]
-        killed = line.content[LOG_PATTERNS[:killed]]
-
-        games[game_id][:kills][killer] += 1 unless killer == WORLD_ID
-        games[game_id][:kills][killed] -= 1 if killer == WORLD_ID
-
-        games[game_id][:total_kills] += 1
+        games[game_id] = KillEvent.process(line, games[game_id])
       }
     }
 
