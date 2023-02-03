@@ -4,11 +4,12 @@ require 'sinatra'
 require_relative '../parser/modules/data'
 
 get '/games/:id' do
-  id = params[:id]
+  id = params[:id].to_i
 
   result = Data.load
+  puts result
   games = result['games']
-  game_founded = games.find { |game| game['id'] == "game_#{id}" }
+  game_founded = games.find { |game| game['id'] == id }
 
   if game_founded
     content_type(:json)
