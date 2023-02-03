@@ -7,7 +7,6 @@ get '/games/:id' do
   id = params[:id].to_i
 
   result = Data.load
-  puts result
   games = result['games']
   game_founded = games.find { |game| game['id'] == id }
 
