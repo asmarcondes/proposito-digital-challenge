@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require_relative './modules/log'
-require_relative './modules/events/new_game'
-require_relative './modules/events/user_info'
-require_relative './modules/events/kill'
+require_relative '../modules/log'
+require_relative '../modules/events/new_game'
+require_relative '../modules/events/user_info'
+require_relative '../modules/events/kill'
 
 # Classe responsável por extrair os dados do arquivo de log
 class LogParser
