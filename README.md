@@ -55,6 +55,19 @@ Após execução dos comandos, poderá visualizar o relatório do log no termina
 > ```
 > 
 
+## Utilizando Docker (opcional)
+
+Uma alternativa para rodar aplicação é utilizando o Docker (no caso, estou utilizando o Docker Compose), dessa forma não há necessidade de possuir a mesma versão do Ruby na máquina (ou até mesmo qualquer versão).
+
+> Caso não tenha o Docker instalado, siga as instruções da [documentação](https://docs.docker.com/get-docker/).
+
+Com isso só precisará de um comando para inicializar. Abra o terminal no local onde fez o clone do projeto e rode o comando:
+```bash
+$ docker compose up --build`
+```
+
+Usando o script `docker-compose.yml` e `Dockerfile`, a imagem correspondente do Ruby será baixada e, em seguida, seram feitas as instalações das dependências e execução dos scripts do parser e da API, acessível pela mesma porta `4567` no navegador.
+
 ---
 
 ## Solução proposta
