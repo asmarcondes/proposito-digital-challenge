@@ -6,7 +6,7 @@ require_relative '../modules/log'
 
 # Dados referentes à partida
 class Game
-  attr_accessor :id, :players, :kills, :total_kills
+  attr_reader :id, :players, :kills, :total_kills
 
   def initialize(id)
     @id = id
@@ -25,8 +25,10 @@ class Game
   end
 
   def player_killed(killer, killed)
-    @kills[killer] += 1 unless killer == Log::WORLD_ID
-    @kills[killed] -= 1 if killer == Log::WORLD_ID
+    world_killer = killer == Log::WORLD_ID
+
+    @kills[killer] += 1 unless world_killer
+    @kills[killed] -= 1 if world_killer
     @total_kills += 1
   end
 

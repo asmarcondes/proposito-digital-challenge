@@ -17,21 +17,23 @@ class LogParser
     @current_game = {}
   end
 
-  def parse_line(line)
-    line.match(LOG_PATTERNS[:log]) { |m| Line.new(*m.captures) }
-  end
-
   def process(filename)
-    File.foreach(get_file_path(filename)) do |line|
-      register = parse_line(line)
-      event_name = register&.event
-      events_actions[event_name]&.call(register)
+    file_path = LOG_PATH + filename
+
+    File.foreach(file_path) do |line|
+      parse_line(line)
     end
 
     @games
   end
 
   private
+
+  def parse_line(line)
+    register = line.match(LOG_PATTERNS[:log]) { |matched| Line.new(*matched.captures) }
+    event_name = register&.event
+    events_actions[event_name]&.call(register)
+  end
 
   def events_actions
     new_game = lambda { |_line|

@@ -6,39 +6,73 @@ module Report
     ranking = Hash.new(0)
 
     games.each_with_index do |value, index|
-      puts "\n----- Game ##{index + 1} -----"
-      puts "\nPlayers:"
-
       game = value.last
-      sorted_players = game.players.sort
+      kills = game.kills
 
-      sorted_players.each do |player|
-        puts "- #{player}"
-      end
+      ranking = update_ranking(ranking, kills)
 
-      puts "\nKills:"
-      puts "- (#{game.total_kills})\tTOTAL KILLS"
-
-      sorted_kills = game.kills.sort_by { |_a, b| -b }
-
-      sorted_kills.each do |kill|
-        ranking[kill.first] += kill.last
-        puts "- (#{kill.last})\t#{kill.first}"
-      end
+      print_game_header(index)
+      print_players(game.players)
+      print_kill_header(game.total_kills)
+      print_kills(kills)
     end
 
-    puts "\n----- KILLS RANKING -----\n\n"
+    print_ranking(ranking)
+  end
 
+  def self.update_ranking(ranking, kills)
+    kills.each do |kill|
+      player, value = kill
+
+      ranking[player] += value
+    end
+
+    ranking
+  end
+
+  def self.print_game_header(index)
+    puts "\n----- Game ##{index + 1} -----"
+    puts "\nPlayers:"
+  end
+
+  def self.print_kill_header(total_kills)
+    puts "\nKills:"
+    puts "- (#{total_kills})\tTOTAL KILLS"
+  end
+
+  def self.print_players(players)
+    sorted_players = players.sort
+
+    sorted_players.each do |player|
+      puts "- #{player}"
+    end
+  end
+
+  def self.print_kills(kills)
+    sorted_kills = kills.sort_by { |_a, value| -value }
+
+    sorted_kills.each do |kill|
+      player, value = kill
+
+      puts "- (#{value})\t#{player}"
+    end
+  end
+
+  def self.print_ranking(ranking)
     current_position = 0
     last_kills = 0
 
-    sorted_ranking = ranking.sort_by { |_a, b| -b }
+    puts "\n----- KILLS RANKING -----\n\n"
 
-    sorted_ranking.each_with_index do |kill, _index|
-      current_position += 1 unless kill.last == last_kills
-      last_kills = kill.last
+    sorted_ranking = ranking.sort_by { |_a, value| -value }
 
-      puts "#{current_position}º #{kill.first} (#{kill.last})"
+    sorted_ranking.each do |kill|
+      player, value = kill
+
+      current_position += 1 unless value == last_kills
+      last_kills = value
+
+      puts "#{current_position}º #{player} (#{value})"
     end
   end
 end

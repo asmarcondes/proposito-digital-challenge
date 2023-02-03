@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# Estrutura para armazenar dados chaves de
+# cada linha do log (tempo, evento e conteúdo)
 Line = Struct.new(:time, :event, :content)
 
 # Módulo com patterns/constantes referentes ao log
@@ -24,8 +26,4 @@ module Log
   WORLD_ID = '<world>'
   GAME_PREFIX = 'game_'
   LOG_PATH = './parser/logs/'
-
-  def get_file_path(file_name)
-    LOG_PATH + file_name
-  end
 end
