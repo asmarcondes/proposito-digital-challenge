@@ -2,11 +2,13 @@
 
 require 'set'
 require_relative 'log_parser'
+require_relative './modules/data'
 
 log_file = 'games.log'
 
 parser = LogParser.new
 games = parser.process(log_file)
+Data.save(games)
 
 ranking = Hash.new(0)
 
