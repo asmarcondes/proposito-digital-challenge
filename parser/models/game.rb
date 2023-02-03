@@ -20,10 +20,6 @@ class Game
     @kills[player] = 0 unless @kills.key?(player)
   end
 
-  def add_kill(player)
-    @kills[player] += 1
-  end
-
   def player_killed(killer, killed)
     world_killer = killer == Log::WORLD_ID
 

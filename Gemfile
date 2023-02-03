@@ -11,3 +11,8 @@ group :development do
   gem 'rubycritic', require: false
   gem 'solargraph'
 end
+
+group :test do
+  gem 'rspec'
+  gem 'simplecov', require: false
+end
