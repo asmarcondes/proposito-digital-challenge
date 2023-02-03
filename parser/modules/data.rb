@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
+require 'json'
+
 # Módulo para ler/salvar os games em um arquivo JSON,
 # para simular persistência em BD
 module Data
-  FILE_PATH = 'parser/db/development.json'
+  FILE_PATH = 'db/development.json'
 
   def self.save(hash)
     parsed_hash = parse_hash(hash)
