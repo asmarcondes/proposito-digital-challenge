@@ -60,10 +60,10 @@ Após execução dos comandos, poderá visualizar o relatório do log no termina
 ## Solução proposta
 
 1. Feita a abertura do arquivo de log, o processamento é feito linha a linha, permitindo trabalhar com arquivos de diversos tamanhos sem carregar todo em memória.
-2. Em cada linha, com uso de RegEx, busca informações baseados em 3 principais eventos: `InitGame` para encontrar o início de cada partida, `ClientUserinfoChanged` contendo informações sobre os jogadores e `Kill` com os registros de mortes no jogo.
+2. Em cada linha, com uso de RegEx, separa em 3 informações: `:time`, `:event` e `:content`. O `:event` que nos fornecerá qual evento ocorreu e temos `InitGame` para encontrar o início de cada partida, `ClientUserinfoChanged` contendo informações sobre os jogadores e `Kill` com os registros de mortes no jogo. Definido o evento, `:content` é utilizado para extrair informações específicas.
 3. Cada `InitGame` sinaliza que um novo jogo foi iniciado, assim é possível tratar todos os registros seguintes como parte desse novo jogo.
 4. A presença do `ClientUserinfoChanged` indica que podemos extrair o nome de um jogador na partida, mas por ter a possibilidade de aparecer mais de uma vez, se faz necessário garantir que esse jogador não apareça duplicado.
-5. Por último, dos eventos tratados, o registro por ser `Kill`. Nessa linha o RegEx extrai os jogadores envolvidos, o que matou e o que foi morto. Com isso conseguimos calcular o total de mortes da partida e também o total de mortes que cada jogador causou. Destacando que a presença da palavra-chave `<world>` indica que não foi morto por outro humano, sendo que isso influencia no seu total de mortes causadas pelo mesmo.
+5. Por último, dos eventos tratados, o registro por ser `Kill`. Nessa linha o RegEx extrai os jogadores envolvidos, o que matou e o que foi morto. Com isso conseguimos calcular o total de mortes da partida e também o total de mortes que cada jogador causou. Destacando que a presença da palavra-chave `<world>` indica que não foi morto por outro humano, sendo que isso influencia no total de mortes causadas pelo mesmo.
 6. Para verificar qual o tipo de evento do registro analisado, optei pela abordagem semelhante ao `object literal pattern` / `module pattern` em JavaScript, descartando a necessidade de blocos `if/else` ou `switch`, melhorando a organização do código.
     ```javascript
     let MeuObjeto = (function() {
