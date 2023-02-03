@@ -1,0 +1,12 @@
+version: "3.8"
+
+name: quake-parser
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: app-ruby
+    ports:
+      - 4567:4567
