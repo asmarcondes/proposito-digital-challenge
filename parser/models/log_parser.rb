@@ -36,7 +36,7 @@ class LogParser
   def events_actions
     new_game = lambda { |_line|
       increment_game_count
-      @current_game = update_game(NewGameEvent.process)
+      @current_game = update_game(NewGameEvent.process(@current_game_index))
     }
 
     user_info = lambda { |line|

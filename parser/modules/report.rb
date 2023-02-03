@@ -9,17 +9,17 @@ module Report
       puts "\n----- Game ##{index + 1} -----"
       puts "\nPlayers:"
 
-      data = value.last
-      sorted_players = data[:players].sort
+      game = value.last
+      sorted_players = game.players.sort
 
       sorted_players.each do |player|
         puts "- #{player}"
       end
 
       puts "\nKills:"
-      puts "- (#{data[:total_kills]})\tTOTAL KILLS"
+      puts "- (#{game.total_kills})\tTOTAL KILLS"
 
-      sorted_kills = data[:kills].sort_by { |_a, b| -b }
+      sorted_kills = game.kills.sort_by { |_a, b| -b }
 
       sorted_kills.each do |kill|
         ranking[kill.first] += kill.last

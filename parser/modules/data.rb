@@ -10,8 +10,8 @@ module Data
   def self.save(hash)
     parsed_hash = parse_hash(hash)
 
-    list = parsed_hash.map do |key, value|
-      { id: key }.merge(value)
+    list = parsed_hash.map do |_key, value|
+      value.to_hash
     end
 
     data = to_json({ games: list })

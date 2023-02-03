@@ -2,6 +2,7 @@
 
 require_relative './modules/data'
 require_relative './modules/report'
+
 require_relative './models/log_parser'
 
 # Módulo que serve de ponto de partida da aplicação

@@ -2,13 +2,11 @@
 
 require 'set'
 
+require_relative '../../models/game'
+
 # Processa o log de novo jogo
 module NewGameEvent
-  def self.process
-    {
-      total_kills: 0,
-      players: Set.new,
-      kills: Hash.new(0)
-    }
+  def self.process(game_id)
+    Game.new(game_id)
   end
 end
