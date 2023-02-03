@@ -34,17 +34,23 @@ class LogParser
   private
 
   def events_actions
+    new_game = lambda { |_line|
+      increment_game_count
+      @current_game = update_game(NewGameEvent.process)
+    }
+
+    user_info = lambda { |line|
+      update_game(UserInfoEvent.process(line, @current_game))
+    }
+
+    kill = lambda { |line|
+      update_game(KillEvent.process(line, @current_game))
+    }
+
     {
-      EVENT[:new_game] => lambda { |_line|
-        increment_game_count
-        @current_game = update_game(NewGameEvent.process)
-      },
-      EVENT[:user_info] => lambda { |line|
-        update_game(UserInfoEvent.process(line, @current_game))
-      },
-      EVENT[:kill] => lambda { |line|
-        update_game(KillEvent.process(line, @current_game))
-      }
+      EVENT[:new_game] => new_game,
+      EVENT[:user_info] => user_info,
+      EVENT[:kill] => kill
     }
   end
 
