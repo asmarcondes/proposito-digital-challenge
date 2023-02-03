@@ -3,7 +3,7 @@
 require 'sinatra'
 require_relative '../parser/modules/data'
 
-get '/game/:id' do
+get '/games/:id' do
   id = params[:id]
 
   result = Data.load
