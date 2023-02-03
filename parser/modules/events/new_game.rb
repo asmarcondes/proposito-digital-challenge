@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'set'
+
 # Processa o log de novo jogo
 module NewGameEvent
   def self.process
